@@ -16,15 +16,15 @@ Once you have the application server running, the first time you run Waltz it wi
 
 Next we will want to Authenticate users.  The "hello world" implementation uses a basic username and password setup which is fine for a POC, but most Financial Service Organisations will have their own dedicated Authentication services (Active Directory etc.).  For a production instance of Waltz we don't want users to be having to enter their passwords if they are already authenticated, so we should be able to SSO the user seamlessly.
 
-As we are deploying on K8s, the simplest solution Sidecar Proxy, something like [oath2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/) to intercept all calls to the application and use that to Authenticate the user with your Authentication provider.  If the user is signed in then the sidecar proxy will add a standard JWT (JSON Web Token) to the Authentication header and pass that to Waltz. 
+As we are deploying on K8s, the simplest solution Sidecar Proxy, something like [oath2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/) to intercept all calls to the application and use that to Authenticate the user with your Authentication provider.  We use that to populate a header with the user's email address.
 
-Now that we have the JWT being passed across, we need to change the settings in Waltz to disable the username and password entry and use the Authentication JWT. See [settings docs](../features/configuration/settings.md#security):
+Now that we have the email address being passed across in a header, we need to change the settings in Waltz to disable the username and password entry and tell Waltz to use Header based authentication and which header contains the users email. See [settings docs](../features/configuration/settings.md#security):
 
 |Setting|Value|
 |-------|-----|
 |web.authentication|"sso"| 
 |server.authentication.filter | "org.finos.waltz.web.endpoints.auth.HeaderBasedAuthenticationFilter"|
-
+|server.authentication.filter.headerbased.param|"X-Auth-Request-Email"|
 
 
 
